@@ -108,5 +108,5 @@ export async function queryEvents(): Promise<TransformedMusicData[] | []> {
   }
 }
 
-// // Example usage
+
 // queryEvents();
