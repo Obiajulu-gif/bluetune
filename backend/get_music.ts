@@ -1,6 +1,8 @@
 import axios from 'axios';
+import { NEXT_PUBLIC_BLUETUNE } from './package_ids';
 
-const OBJECT_ID = process.env.NEXT_PUBLIC_BLUETUNE as string;
+// const OBJECT_ID = process.env.NEXT_PUBLIC_BLUETUNE as string;
+const OBJECT_ID = NEXT_PUBLIC_BLUETUNE;
 
 interface RawMusicData {
   fields: {
