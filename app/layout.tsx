@@ -1,6 +1,7 @@
 import type React from "react"
-import { WalletProvider } from "@/hooks/use-wallet"
+// import { WalletProvider } from "@/hooks/use-wallet"
 import "./globals.css"
+import Providers from "./providers"; 
 
 export default function RootLayout({
   children,
@@ -10,7 +11,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <WalletProvider>{children}</WalletProvider>
+        {/* <WalletProvider>{children}</WalletProvider> */}
+        <Providers>{children}</Providers>
       </body>
     </html>
   )

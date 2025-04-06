@@ -14,6 +14,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/hooks/use-toast"
 import { Music, Upload, X, Info } from "lucide-react"
 import { uploadToWalrus } from "@/lib/walrus-client"
+import { Controller } from "react-hook-form";
+import { Transaction } from "@mysten/sui/transactions";
+import { SuiClient, getFullnodeUrl } from "@mysten/sui/client";
+import { useWallet } from "@suiet/wallet-kit";
 
 type UploadFormProps = {
   onUploadSuccess: (trackData: any) => void
@@ -28,9 +32,12 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
   const [isPermanent, setIsPermanent] = useState(true)
   const [estimatedCost, setEstimatedCost] = useState("0.05")
 
+  const wallet = useWallet();
+
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm()
 
@@ -98,7 +105,7 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
 
       // In a real implementation, this would call the Walrus API
       const result = await uploadToWalrus(file, coverImage, metadata)
-
+      
       clearInterval(progressInterval)
       setUploadProgress(100)
 
@@ -264,9 +271,12 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="genre">Genre</Label>
-                  <Select {...register("genre", { required: true })}>
+                <Controller
+                name="genre"
+                control={control}
+                rules={{ required: "Genre is required" }}
+                render={({ field }) => (
+                  <Select onValueChange={field.onChange} value={field.value || ""}>
                     <SelectTrigger className="bg-black/30 border-gray-700">
                       <SelectValue placeholder="Select genre" />
                     </SelectTrigger>
@@ -281,8 +291,8 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
                       <SelectItem value="other">Other</SelectItem>
                     </SelectContent>
                   </Select>
-                  {errors.genre && <p className="text-red-500 text-xs mt-1">Genre is required</p>}
-                </div>
+                )}
+              />
               </div>
             </TabsContent>
 

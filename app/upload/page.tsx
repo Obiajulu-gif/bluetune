@@ -1,15 +1,16 @@
 "use client"
-
 import { useState } from "react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { UploadForm } from "@/components/upload-form"
 import { UploadSuccess } from "@/components/upload-success"
 import { ConnectWalletPrompt } from "@/components/connect-wallet-prompt"
-import { useWallet } from "@/hooks/use-wallet"
+// import { useWallet } from "@/hooks/use-wallet"
+import { useWallet } from "@suiet/wallet-kit";
 
 export default function UploadPage() {
-  const { isConnected } = useWallet()
+  // const { isConnected } = useWallet()
+  const { connected } = useWallet();
   const [uploadComplete, setUploadComplete] = useState(false)
   const [uploadedTrack, setUploadedTrack] = useState<any>(null)
 
@@ -23,8 +24,9 @@ export default function UploadPage() {
       <Header />
       <div className="container mx-auto px-4 pt-32 pb-20">
         <div className="max-w-4xl mx-auto">
-          {!isConnected ? (
+          {!connected ? (
             <ConnectWalletPrompt message="Connect your wallet to upload music" />
+            // <h1>dkjd</h1>
           ) : !uploadComplete ? (
             <UploadForm onUploadSuccess={handleUploadSuccess} />
           ) : (

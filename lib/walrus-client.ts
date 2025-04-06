@@ -1,18 +1,26 @@
-// This is a mock implementation of the Walrus client
-// In a real implementation, this would use the @walrus-web/client package
+import axios from "axios";
 
 export async function uploadToWalrus(file: File, coverImage: File | null, metadata: any) {
-  // Simulate a delay for the upload
-  await new Promise((resolve) => setTimeout(resolve, 2000))
+  console.log("Uploading to Walrus...")
 
-  // Generate a mock blob ID
-  const blobId = "0x" + Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join("")
-
-  // Generate a mock track ID
   const trackId = Math.random().toString(36).substring(2, 10)
 
-  // In a real implementation, this would upload the file to Walrus
-  // and return the blob ID and other metadata
+  try {
+    const res = await axios.put(
+        'https://publisher.walrus-testnet.walrus.space/v1/blobs?deletable=true',
+        file,
+        {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        }
+    );
+    const blobId = res.data.newlyCreated.blobObject.blobId;
+    console.log("Blob ID:", blobId);
+    if (coverImage) {
+        console.log(URL.createObjectURL(coverImage));
+    } else {
+        console.log("No cover image provided.");
+    }
+
   return {
     id: trackId,
     blobId,
@@ -20,6 +28,11 @@ export async function uploadToWalrus(file: File, coverImage: File | null, metada
     audioUrl: URL.createObjectURL(file),
     ...metadata,
   }
+  } catch (err) {
+    console.log(err);
+  }
+
+  
 }
 
 export async function fetchFromWalrus(blobId: string) {

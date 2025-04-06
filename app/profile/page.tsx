@@ -20,10 +20,11 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { useWallet } from "@/hooks/use-wallet";
+// import { useWallet } from "@/hooks/use-wallet";
+import { useWallet } from "@suiet/wallet-kit";
 
 export default function ProfilePage() {
-	const { isConnected, walletAddress } = useWallet();
+	const { connected, address } = useWallet();
 	const [activeTab, setActiveTab] = useState("uploads");
 
 	// Mock data
@@ -59,7 +60,7 @@ export default function ProfilePage() {
 		},
 	];
 
-	if (!isConnected) {
+	if (!connected) {
 		return (
 			<main className="min-h-screen bg-gradient-to-b from-black via-blue-950 to-black text-white">
 				<Header />

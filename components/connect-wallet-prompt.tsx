@@ -3,8 +3,8 @@
 import { useState } from "react"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { useWallet } from "@/hooks/use-wallet"
 import { Wallet, Loader2 } from "lucide-react"
+import { ConnectButton} from "@suiet/wallet-kit";
 
 type ConnectWalletPromptProps = {
   message?: string
@@ -12,26 +12,26 @@ type ConnectWalletPromptProps = {
 }
 
 export function ConnectWalletPrompt({ message, onClose }: ConnectWalletPromptProps) {
-  const { connect } = useWallet()
+  // const { connect } = useWallet()
   const [isConnecting, setIsConnecting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const handleConnect = async () => {
-    setIsConnecting(true)
-    setError(null)
+  // const handleConnect = async () => {
+  //   setIsConnecting(true)
+  //   setError(null)
 
-    try {
-      await connect()
-      if (onClose) {
-        onClose()
-      }
-    } catch (err) {
-      setError("Failed to connect wallet. Please try again.")
-      console.error(err)
-    } finally {
-      setIsConnecting(false)
-    }
-  }
+  //   try {
+  //     await connect()
+  //     if (onClose) {
+  //       onClose()
+  //     }
+  //   } catch (err) {
+  //     setError("Failed to connect wallet. Please try again.")
+  //     console.error(err)
+  //   } finally {
+  //     setIsConnecting(false)
+  //   }
+  // }
 
   return (
     <Card className="bg-black/40 backdrop-blur-md border-blue-900/50">
@@ -58,7 +58,7 @@ export function ConnectWalletPrompt({ message, onClose }: ConnectWalletPromptPro
         )}
       </CardContent>
       <CardFooter>
-        <Button
+        {/* <Button
           onClick={handleConnect}
           disabled={isConnecting}
           className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
@@ -71,7 +71,8 @@ export function ConnectWalletPrompt({ message, onClose }: ConnectWalletPromptPro
           ) : (
             "Connect Wallet"
           )}
-        </Button>
+        </Button> */}
+        <ConnectButton/>
       </CardFooter>
     </Card>
   )

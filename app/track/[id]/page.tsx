@@ -8,7 +8,8 @@ import { motion } from "framer-motion"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { ConnectWalletPrompt } from "@/components/connect-wallet-prompt"
-import { useWallet } from "@/hooks/use-wallet"
+// import { useWallet } from "@/hooks/use-wallet"
+import { useWallet } from "@suiet/wallet-kit";
 
 // Mock data for track details
 const mockTrackData = {
@@ -57,7 +58,7 @@ const relatedTracks = [
 
 export default function TrackDetailPage() {
   const { id } = useParams()
-  const { isConnected } = useWallet()
+  const { connected } = useWallet()
   const [track, setTrack] = useState(mockTrackData)
   const [isPlaying, setIsPlaying] = useState(false)
   const [isLiked, setIsLiked] = useState(false)
@@ -74,7 +75,7 @@ export default function TrackDetailPage() {
   }
 
   const handleLike = () => {
-    if (!isConnected) {
+    if (!connected) {
       setShowWalletPrompt(true)
       return
     }
@@ -82,7 +83,7 @@ export default function TrackDetailPage() {
   }
 
   const handlePurchase = () => {
-    if (!isConnected) {
+    if (!connected) {
       setShowWalletPrompt(true)
       return
     }
