@@ -15,8 +15,8 @@ import { useToast } from "@/hooks/use-toast"
 import { Music, Upload, X, Info } from "lucide-react"
 import { uploadToWalrus } from "@/lib/walrus-client"
 import { Controller } from "react-hook-form";
-import { Transaction } from "@mysten/sui/transactions";
-import { SuiClient, getFullnodeUrl } from "@mysten/sui/client";
+// import { Transaction } from "@mysten/sui/transactions";
+// import { SuiClient, getFullnodeUrl } from "@mysten/sui/client";
 import { useWallet } from "@suiet/wallet-kit";
 
 type UploadFormProps = {
