@@ -8,9 +8,20 @@ import { motion } from "framer-motion"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { ConnectWalletPrompt } from "@/components/connect-wallet-prompt"
-import { getMusicbyId } from "@/backend/get_music"
+import { getMusicbyId } from "@/backend/get_music_new"
 // import { useWallet } from "@/hooks/use-wallet"
 import { useWallet } from "@suiet/wallet-kit";
+
+type Track = {
+  id: string;
+  title: string;
+  artist: string;
+  coverUrl: string;
+  duration: string;
+  genre: string;
+  blobId: string;
+  releaseDate: string;
+}
 
 // Mock data for track details
 const mockTrackData = {
@@ -60,25 +71,29 @@ const relatedTracks = [
 export default function TrackDetailPage() {
   const { id } = useParams()
   const { connected } = useWallet()
-  const [track, setTrack] = useState(mockTrackData)
+  
+  const [track, setTrack] = useState<Track | null>(null);
   const [isPlaying, setIsPlaying] = useState(false)
   const [isLiked, setIsLiked] = useState(false)
   const [showWalletPrompt, setShowWalletPrompt] = useState(false)
 
   useEffect(() => {
-    // In a real app, fetch track data based on ID
-    if (id) {
-      console.log(`Fetching track with ID: ${id}`)
-      if (typeof id === "string") {
-        getMusicbyId(id)
+    const fetchTrackData = async () => {
+      // In a real app, fetch track data based on ID
+      if (id) {
+        console.log(`Fetching track with ID: ${id}`)
+        if (typeof id === "string") {
+          const musicData = await getMusicbyId(id);
+          setTrack(musicData);
+        } else {
+          console.error("Track ID is not a valid string")
+        }
       } else {
-        console.error("Track ID is not a valid string")
+        console.error("Track ID is undefined")
       }
-    } else {
-      console.error("Track ID is undefined")
-    }
+    };
 
-    // For now, we'll use mock data
+    fetchTrackData();
   }, [id])
 
   const handlePlayPause = () => {
@@ -99,7 +114,7 @@ export default function TrackDetailPage() {
       return
     }
     // Handle purchase logic
-    alert(`Purchase track for ${track.price} ${track.currency}`)
+    alert(`Purchase track for ${mockTrackData.price} ${mockTrackData.currency}`)
   }
 
   return (
@@ -131,8 +146,8 @@ export default function TrackDetailPage() {
               className="relative aspect-square rounded-lg overflow-hidden shadow-xl"
             >
               <img
-                src={track.coverArt || "/placeholder.svg"}
-                alt={track.title}
+                src={track?.coverUrl || "/placeholder.svg"}
+                alt={track?.title || "Track title"}
                 className="w-full h-full object-cover"
               />
             </motion.div>
@@ -168,12 +183,12 @@ export default function TrackDetailPage() {
                 </div>
               </div>
 
-              {!track.isOwned && (
+              {!mockTrackData.isOwned && (
                 <button
                   onClick={handlePurchase}
                   className="w-full py-3 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-medium transition-colors"
                 >
-                  Purchase for {track.price} {track.currency}
+                  Purchase for {mockTrackData.price} {mockTrackData.currency}
                 </button>
               )}
             </div>
@@ -188,35 +203,35 @@ export default function TrackDetailPage() {
               className="space-y-6"
             >
               <div>
-                <h1 className="text-3xl md:text-4xl font-bold text-white">{track.title}</h1>
+                <h1 className="text-3xl md:text-4xl font-bold text-white">{track?.title || "Unknown Title"}</h1>
                 <Link
-                  href={`/artist/${track.artistId}`}
+                  href={`/artist/${mockTrackData.artistId}`}
                   className="text-xl text-purple-400 hover:text-purple-300 transition-colors"
                 >
-                  {track.artist}
+                  {track?.artist}
                 </Link>
               </div>
 
               <div className="flex flex-wrap gap-4 text-gray-300">
                 <div className="flex items-center">
                   <Clock size={16} className="mr-2" />
-                  <span>{track.duration}</span>
+                  <span>{track?.duration || "N/A"}</span>
                 </div>
                 <div className="flex items-center">
                   <Music2 size={16} className="mr-2" />
-                  <span>{track.genre}</span>
+                  <span>{track?.genre || "N/A"}</span>
                 </div>
                 <div>
-                  <span>{track.plays.toLocaleString()} plays</span>
+                  <span>{mockTrackData.plays.toLocaleString()} plays</span>
                 </div>
                 <div>
-                  <span>{track.likes.toLocaleString()} likes</span>
+                  <span>{mockTrackData.likes.toLocaleString()} likes</span>
                 </div>
               </div>
 
               <div className="p-6 rounded-lg bg-gray-900/50 backdrop-blur-sm">
                 <h2 className="text-xl font-semibold text-white mb-3">About This Track</h2>
-                <p className="text-gray-300">{track.description}</p>
+                <p className="text-gray-300">{mockTrackData.description}</p>
               </div>
 
               <div className="p-6 rounded-lg bg-gray-900/50 backdrop-blur-sm">
@@ -224,7 +239,7 @@ export default function TrackDetailPage() {
                 <div className="space-y-2 text-gray-300">
                   <div className="flex justify-between">
                     <span>Blob ID:</span>
-                    <span className="font-mono text-purple-400">{track.blobId}</span>
+                    <span className="font-mono text-purple-400">{track?.blobId || "N/A"}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Storage Type:</span>
@@ -232,7 +247,7 @@ export default function TrackDetailPage() {
                   </div>
                   <div className="flex justify-between">
                     <span>Released:</span>
-                    <span>{track.releaseDate}</span>
+                    <span>{track?.releaseDate || "N/A"}</span>
                   </div>
                 </div>
               </div>

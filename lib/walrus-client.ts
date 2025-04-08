@@ -12,7 +12,9 @@ export async function uploadToWalrus(file: File, coverImage: File | null, metada
         }
     );
     const blobId = res.data.newlyCreated.blobObject.blobId;
+    const blobObjectId = res.data.newlyCreated.blobObject.id;
     console.log("Blob ID:", blobId);
+    console.log(res.data)
     if (coverImage) {
         console.log(URL.createObjectURL(coverImage));
     } else {
@@ -21,6 +23,7 @@ export async function uploadToWalrus(file: File, coverImage: File | null, metada
 
   return {
     blobId,
+    blobObjectId,
     coverUrl: coverImage ? URL.createObjectURL(coverImage) : null,
     audioUrl: URL.createObjectURL(file),
     ...metadata,

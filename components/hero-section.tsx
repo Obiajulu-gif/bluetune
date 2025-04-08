@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { ConnectWalletButton } from "@/components/connect-wallet-button"
 import { motion } from "framer-motion"
 import { Play, Pause, Disc3 } from "lucide-react"
-import { queryEvents } from "@/backend/get_music"
+import { queryEvents } from "@/backend/get_music_new"
 
 export function HeroSection() {
   const [isPlaying, setIsPlaying] = useState(false)
@@ -18,7 +18,7 @@ export function HeroSection() {
       try {
         const fetchedTracks = await queryEvents();
         if (fetchedTracks && fetchedTracks.length > 0) {
-          setLatestTrack(fetchedTracks[1]);
+          setLatestTrack(fetchedTracks[0]);
         }
       } catch (error) {
         console.error("Failed to fetch tracks:", error);

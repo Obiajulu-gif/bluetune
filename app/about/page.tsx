@@ -256,12 +256,11 @@ export default function AboutPage() {
 									<Database className="h-12 w-12 text-green-400" />
 								</div>
 								<h3 className="text-xl font-bold mb-1">
-									Alainengiya George Junior
+									BlockchainBard
 								</h3>
-								<p className="text-green-400 mb-4">Lead Blockchain Expert</p>
+								<p className="text-green-400 mb-4">Sui Dev</p>
 								<p className="text-gray-300 text-sm">
-									Specialized in decentralized storage solutions with deep
-									knowledge of the Walrus Protocol.
+									Ai & Sui Developer with 5+ years experience in Development.
 								</p>
 							</div>
 						</div>

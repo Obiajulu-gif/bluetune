@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Play, Pause } from "lucide-react"
 import { motion } from "framer-motion"
-import { queryEvents } from "@/backend/get_music"
+import { queryEvents } from "@/backend/get_music_new"
 
 type Track = {
   id: string

@@ -19,22 +19,9 @@ import { Transaction, coinWithBalance } from "@mysten/sui/transactions";
 import { SuiClient, getFullnodeUrl } from "@mysten/sui/client";
 import { useWallet } from "@suiet/wallet-kit";
 import { NEXT_PUBLIC_PACKAGEID, NEXT_PUBLIC_BLUETUNE } from "@/backend/package_ids"
-
+import { MusicAddedEvent } from "@/backend/get_music_new"
 type UploadFormProps = {
   onUploadSuccess: (trackData: any) => void
-}
-
-type MusicAddedEvent = {
-  id: string;
-  title: string;
-  artist: string;
-  album: string;
-  coverUrl: string;
-  genre: string;
-  duration: number;
-  blobId: string;
-  dateAdded: number;
-  plays: number;
 }
 
 
@@ -118,7 +105,6 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
     setIsUploading(true)
 
     try {
-      // Simulate upload progress
       const progressInterval = setInterval(() => {
         setUploadProgress((prev) => {
           if (prev >= 95) {
@@ -129,7 +115,6 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
         })
       }, 300)
 
-      // Simulate Walrus upload with metadata
       const metadata = {
         title: data.title,
         artist: data.artist,
@@ -148,14 +133,11 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
         if (wallet.account) {
           const tx = new Transaction();
           console.log(wallet.account.address);
-          // tx.setSender(wallet.account.address);
-          // const payment_coin = coinWithBalance({balance: 500000000, type: "0x8270feb7375eee355e64fdb69c50abb6b5f9393a722883c1cf45f8e26048810a::wal::WAL"});
           const amt = 500000000;
           const coins = await client.getCoins({
             owner: wallet.account.address,
             coinType: "0x8270feb7375eee355e64fdb69c50abb6b5f9393a722883c1cf45f8e26048810a::wal::WAL",
           });
-          // console.log(coins);
           let coin: any;
           if (coins.data.length === 1) {
             console.log(coins.data[0].coinObjectId);
@@ -179,8 +161,8 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
           }
           if (coin !== null) {
             tx.moveCall({
-              target: `${NEXT_PUBLIC_PACKAGEID}::bluetune::add_music`,
-              arguments: [tx.object(NEXT_PUBLIC_BLUETUNE), coin, tx.pure.string(metadata.title), tx.pure.string(metadata.artist), tx.pure.string(metadata.album), tx.pure.string("https://i.ibb.co/pBGMjWjM/retro-music-concept-with-space-left-23-2147684967.jpg"), tx.pure.string(metadata.genre), tx.pure.u64(Math.round(metadata.duration)), tx.pure.string(result.blobId), tx.pure.u64(0), tx.object("0x6")],
+              target: `${NEXT_PUBLIC_PACKAGEID}::bluetune::add_track`,
+              arguments: [tx.object(NEXT_PUBLIC_BLUETUNE), coin, tx.pure.string(metadata.title), tx.pure.string(metadata.artist), tx.pure.string("https://i.ibb.co/xSjS3x9N/Chat-GPT-Image-Apr-8-2025-06-49-38-AM.png"), tx.pure.string(metadata.genre), tx.pure.u64(Math.round(metadata.duration)), tx.pure.string(result.blobId), tx.pure.address(result.blobObjectId), tx.object("0x6")],
               typeArguments: ["0x8270feb7375eee355e64fdb69c50abb6b5f9393a722883c1cf45f8e26048810a::wal::WAL"],
             });
             const txResult = await wallet.signAndExecuteTransaction({ transaction: tx });
@@ -196,6 +178,7 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
                   ...metadata,
                   id: eventData.id,
                   blobId: result.blobId,
+                  blobObjectId: result.blobObjectId,
                   coverUrl: result.coverUrl || "/placeholder.svg?height=400&width=400",
                   audioUrl: result.audioUrl,
                   uploadDate: new Date().toISOString(),
@@ -286,7 +269,7 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
                     }`}
                 >
                   <input {...getCoverInputProps()} />
-                  {!coverImage ? (
+                  {/* {!coverImage ? (
                     <div className="text-center">
                       <Upload className="mx-auto h-12 w-12 text-gray-400 mb-2" />
                       <p className="text-sm font-medium">Drag and drop your cover image here or click to browse</p>
@@ -319,7 +302,7 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
                         <X className="h-4 w-4" />
                       </Button>
                     </div>
-                  )}
+                  )} */}
                 </div>
               </div>
 
@@ -349,7 +332,7 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
+                {/* <div className="space-y-2">
                   <Label htmlFor="album">Album (Optional)</Label>
                   <Input
                     id="album"
@@ -357,7 +340,7 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
                     className="bg-black/30 border-gray-700 focus-visible:ring-blue-500"
                     {...register("album")}
                   />
-                </div>
+                </div> */}
 
                 <Controller
                   name="genre"

@@ -14,6 +14,7 @@ type UploadSuccessProps = {
     artist: string
     coverUrl?: string
     blobId: string
+    blobObjectId: string
     audioUrl?: string
   }
 }
