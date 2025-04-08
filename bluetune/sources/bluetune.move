@@ -50,6 +50,7 @@ public struct BlueTune<phantom WAL> has key {
 }
 
 public struct MusicAddedEvent has copy, drop {
+    id: ID,
     title: String,
     artist: String,
     album: String,
@@ -91,10 +92,9 @@ public fun add_music<WAL>(bluetune: &mut BlueTune<WAL>, payment_coin: Coin<WAL>,
         dateAdded: clock.timestamp_ms(),
         plays,
     };
-    bluetune.music.push_back(music);
     coin::put(&mut bluetune.payments, payment_coin);
-
     event::emit(MusicAddedEvent{
+        id: music.id.to_inner(),
         title,
         artist,
         album,
@@ -105,6 +105,7 @@ public fun add_music<WAL>(bluetune: &mut BlueTune<WAL>, payment_coin: Coin<WAL>,
         dateAdded: clock.timestamp_ms(),
         plays,
     });
+    bluetune.music.push_back(music);
 }
 
 // public fun get_music<WAL>(bluetune: &BlueTune<WAL>, blobId: String): &Music {

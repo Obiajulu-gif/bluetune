@@ -8,6 +8,7 @@ import { motion } from "framer-motion"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { ConnectWalletPrompt } from "@/components/connect-wallet-prompt"
+import { getMusicbyId } from "@/backend/get_music"
 // import { useWallet } from "@/hooks/use-wallet"
 import { useWallet } from "@suiet/wallet-kit";
 
@@ -66,7 +67,17 @@ export default function TrackDetailPage() {
 
   useEffect(() => {
     // In a real app, fetch track data based on ID
-    console.log(`Fetching track with ID: ${id}`)
+    if (id) {
+      console.log(`Fetching track with ID: ${id}`)
+      if (typeof id === "string") {
+        getMusicbyId(id)
+      } else {
+        console.error("Track ID is not a valid string")
+      }
+    } else {
+      console.error("Track ID is undefined")
+    }
+
     // For now, we'll use mock data
   }, [id])
 
@@ -261,4 +272,3 @@ export default function TrackDetailPage() {
     </div>
   )
 }
-

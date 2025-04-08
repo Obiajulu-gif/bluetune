@@ -104,10 +104,14 @@ export function UploadSuccess({ trackData }: UploadSuccessProps) {
           className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
           asChild
         >
-          <Link href={`/track/${trackData.id}`}>
-            <ExternalLink className="h-4 w-4 mr-2" />
-            View Track Page
+          <Link href={{
+              pathname: `/track/${trackData.id}`,
+              query: { trackData: JSON.stringify(trackData) }
+          }}>
+              <ExternalLink className="h-4 w-4 mr-2" />
+              View Track Page
           </Link>
+
         </Button>
         <Button variant="outline" className="w-full sm:w-auto" onClick={shareTrack}>
           <Share2 className="h-4 w-4 mr-2" />

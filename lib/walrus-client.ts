@@ -1,13 +1,11 @@
 import axios from "axios";
-
+                                          
 export async function uploadToWalrus(file: File, coverImage: File | null, metadata: any) {
   console.log("Uploading to Walrus...")
 
-  const trackId = Math.random().toString(36).substring(2, 10)
-
   try {
     const res = await axios.put(
-        'https://publisher.walrus-testnet.walrus.space/v1/blobs?deletable=true',
+        'https://publisher.walrus-testnet.walrus.space/v1/blobs?epochs=50&deletable=true',
         file,
         {
             headers: { 'Content-Type': 'multipart/form-data' }
@@ -22,7 +20,6 @@ export async function uploadToWalrus(file: File, coverImage: File | null, metada
     }
 
   return {
-    id: trackId,
     blobId,
     coverUrl: coverImage ? URL.createObjectURL(coverImage) : null,
     audioUrl: URL.createObjectURL(file),
