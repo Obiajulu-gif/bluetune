@@ -30,6 +30,8 @@ export function Header() {
     { name: "Home", href: "/" },
     { name: "Explore", href: "/explore" },
     { name: "Upload", href: "/upload" },
+    { name: "Playlists", href: "/playlist-management" },
+    { name: "Dashboard", href: "/dashboard/creator" },
     { name: "About", href: "/about" },
   ]
 

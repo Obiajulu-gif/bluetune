@@ -2,7 +2,7 @@
 import React from "react";
 import "./globals.css";
 import Providers from "./providers";
-
+import { ThemeProvider } from "next-themes";
 export const metadata = {
   title: "Bluetune",
   description: "Decentralized Music Streaming Platform",
