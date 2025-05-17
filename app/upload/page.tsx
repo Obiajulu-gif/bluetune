@@ -23,6 +23,9 @@ export default function UploadPage() {
     <main className="min-h-screen bg-gradient-to-b from-black via-blue-950 to-black text-white">
       <Header />
       <div className="container mx-auto px-4 pt-32 pb-20">
+        <h1 className="text-4xl md:text-5xl font-bold font-space-grotesk mb-8 text-center">
+          Upload Music
+        </h1>
         <div className="max-w-4xl mx-auto">
           {!connected ? (
             <ConnectWalletPrompt message="Connect your wallet to upload music" />

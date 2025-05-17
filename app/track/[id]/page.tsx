@@ -109,7 +109,7 @@ export default function TrackDetailPage() {
         </div>
       )}
 
-      <div className="container mx-auto px-4 py-24">
+      <div className="container mx-auto px-4 pt-32 pb-20">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Track Cover and Basic Info */}
           <div className="w-full lg:w-1/3">

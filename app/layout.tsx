@@ -1,7 +1,8 @@
 import type React from "react"
 // import { WalletProvider } from "@/hooks/use-wallet"
 import "./globals.css"
-import Providers from "./providers"; 
+import Providers from "./providers";
+import { ThemeProvider } from "@/components/theme-provider";
 
 export default function RootLayout({
   children,
@@ -9,10 +10,13 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+  <html lang="en">
       <body>
-        {/* <WalletProvider>{children}</WalletProvider> */}
-        <Providers>{children}</Providers>
+        <Providers>
+          <ThemeProvider attribute="class" defaultTheme="system">
+            {children}
+          </ThemeProvider>
+        </Providers>
       </body>
     </html>
   )
