@@ -6,9 +6,9 @@ export function ConnectWalletButton() {
 
 
   return (
-    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+    // <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
         <ConnectButton/>
-    </motion.div>
+    // </motion.div>
   )
 }
 

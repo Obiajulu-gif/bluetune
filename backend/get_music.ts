@@ -110,5 +110,37 @@ export async function queryEvents(): Promise<TransformedMusicData[] | []> {
   }
 }
 
+export async function getMusicbyId(id: string){
+  const url = "https://fullnode.testnet.sui.io:443"; // Replace with your Sui RPC URL
 
-// queryEvents();
+  const payload = {
+    jsonrpc: "2.0",
+    id: 1,
+    method: "sui_getObject",
+    params: [
+      id,
+      {
+        showType: false,
+        showOwner: false,
+        showPreviousTransaction: false,
+        showDisplay: false,
+        showContent: true,
+        showBcs: false,
+        showStorageRebate: false
+      }
+    ]
+  };
+
+  try {
+    const response = await axios.post(url, payload, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    console.log(response.data);
+    const musicData = response.data.result.data.content.fields
+    console.log(musicData);
+  }catch (error) {
+    console.error('Error fetching music by ID:', error);
+  }
+}

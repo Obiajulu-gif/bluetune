@@ -1,31 +1,27 @@
-import type React from "react"
-// import { WalletProvider } from "@/hooks/use-wallet"
-import "./globals.css"
+// app/layout.tsx
+import React from "react";
+import "./globals.css";
 import Providers from "./providers";
-import { ThemeProvider } from "@/components/theme-provider";
+
+export const metadata = {
+  title: "Bluetune",
+  description: "Decentralized Music Streaming Platform",
+  generator: "v0.dev",
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
   <html lang="en">
       <body>
+<<<<<<< HEAD
         <Providers>
           <ThemeProvider attribute="class" defaultTheme="system">
             {children}
           </ThemeProvider>
         </Providers>
-      </body>
-    </html>
-  )
-}
-
-
-
-import './globals.css'
-
-export const metadata = {
-      generator: 'v0.dev'
-    };
+=======
+        <Providers>{children}</Providers>

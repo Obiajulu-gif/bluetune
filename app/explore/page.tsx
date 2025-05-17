@@ -7,7 +7,7 @@ import { TrackGrid } from "@/components/track-grid"
 import { MusicPlayer } from "@/components/music-player"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { motion } from "framer-motion"
-import { queryEvents } from "@/backend/get_music"
+import { queryEvents } from "@/backend/get_music_new"
 
 export default function ExplorePage() {
   const [currentTrack, setCurrentTrack] = useState<any>(null)

@@ -1,4 +1,4 @@
-// app/Providers.tsx
+// app/ClientRootLayout.tsx
 "use client";
 
 import React from "react";
@@ -7,7 +7,7 @@ import "@suiet/wallet-kit/style.css";
 
 const SupportedChains: Chain[] = [SuiTestnetChain];
 
-export default function Providers({ children }: { children: React.ReactNode }) {
+export default function ClientRootLayout({ children }: { children: React.ReactNode }) {
   return (
     <WalletProvider chains={SupportedChains}>
       {children}

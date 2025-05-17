@@ -15,13 +15,15 @@ import { useToast } from "@/hooks/use-toast"
 import { Music, Upload, X, Info } from "lucide-react"
 import { uploadToWalrus } from "@/lib/walrus-client"
 import { Controller } from "react-hook-form";
-// import { Transaction } from "@mysten/sui/transactions";
-// import { SuiClient, getFullnodeUrl } from "@mysten/sui/client";
+import { Transaction, coinWithBalance } from "@mysten/sui/transactions";
+import { SuiClient, getFullnodeUrl } from "@mysten/sui/client";
 import { useWallet } from "@suiet/wallet-kit";
-
+import { NEXT_PUBLIC_PACKAGEID, NEXT_PUBLIC_BLUETUNE } from "@/backend/package_ids"
+import { MusicAddedEvent } from "@/backend/get_music_new"
 type UploadFormProps = {
   onUploadSuccess: (trackData: any) => void
 }
+
 
 export function UploadForm({ onUploadSuccess }: UploadFormProps) {
   const { toast } = useToast()
@@ -32,8 +34,10 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
   const [isPermanent, setIsPermanent] = useState(true)
   const [estimatedCost, setEstimatedCost] = useState("0.05")
 
-  const wallet = useWallet();
+  const [audioDuration, setAudioDuration] = useState<number>(0);
 
+  const wallet = useWallet();
+  const client = new SuiClient({ url: getFullnodeUrl("testnet") });
   const {
     register,
     handleSubmit,
@@ -48,14 +52,33 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
     maxFiles: 1,
     onDrop: (acceptedFiles) => {
       if (acceptedFiles.length > 0) {
-        setFile(acceptedFiles[0])
+        const selectedFile = acceptedFiles[0];
+        setFile(selectedFile);
+
         // Calculate estimated cost based on file size
-        const fileSizeInMB = acceptedFiles[0].size / (1024 * 1024)
-        const estimatedWalCost = (fileSizeInMB * 0.01).toFixed(2)
-        setEstimatedCost(estimatedWalCost)
+        const fileSizeInMB = selectedFile.size / (1024 * 1024);
+        const estimatedWalCost = (fileSizeInMB * 0.01).toFixed(2);
+        setEstimatedCost(estimatedWalCost);
+
+        // Calculate duration of the audio file
+        const audio = document.createElement('audio');
+        const url = URL.createObjectURL(selectedFile);
+
+        audio.src = url;
+
+        audio.onloadedmetadata = () => {
+          setAudioDuration(parseFloat(audio.duration.toFixed(2)));
+          URL.revokeObjectURL(url);
+        };
+
+        audio.onerror = () => {
+          console.error('Failed to load the audio file.');
+          URL.revokeObjectURL(url);
+        };
       }
     },
-  })
+  });
+
 
   const { getRootProps: getCoverRootProps, getInputProps: getCoverInputProps } = useDropzone({
     accept: {
@@ -82,7 +105,6 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
     setIsUploading(true)
 
     try {
-      // Simulate upload progress
       const progressInterval = setInterval(() => {
         setUploadProgress((prev) => {
           if (prev >= 95) {
@@ -93,7 +115,6 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
         })
       }, 300)
 
-      // Simulate Walrus upload with metadata
       const metadata = {
         title: data.title,
         artist: data.artist,
@@ -101,24 +122,76 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
         genre: data.genre,
         isPermanent: isPermanent,
         releaseYear: data.releaseYear,
+        duration: audioDuration,
       }
 
-      // In a real implementation, this would call the Walrus API
-      const result = await uploadToWalrus(file, coverImage, metadata)
-      
-      clearInterval(progressInterval)
-      setUploadProgress(100)
+      const result = await uploadToWalrus(file, coverImage, metadata);
+      if (!result) {
+        throw new Error("Failed to upload to Walrus");
+      }
+      try {
+        if (wallet.account) {
+          const tx = new Transaction();
+          console.log(wallet.account.address);
+          const amt = 500000000;
+          const coins = await client.getCoins({
+            owner: wallet.account.address,
+            coinType: "0x8270feb7375eee355e64fdb69c50abb6b5f9393a722883c1cf45f8e26048810a::wal::WAL",
+          });
+          let coin: any;
+          if (coins.data.length === 1) {
+            console.log(coins.data[0].coinObjectId);
+            [coin] = tx.splitCoins(coins.data[0].coinObjectId, [amt]);
+          } else if (coins.data.length > 1) {
+            const coinObjectIds: string[] = [];
+            const objectList = coins.data;
+            coinObjectIds.push(...objectList.map(item => item.coinObjectId));
 
-      setTimeout(() => {
-        onUploadSuccess({
-          ...metadata,
-          id: result.id,
-          blobId: result.blobId,
-          coverUrl: result.coverUrl || "/placeholder.svg?height=400&width=400",
-          audioUrl: result.audioUrl,
-          uploadDate: new Date().toISOString(),
-        })
-      }, 1000)
+            const firstObjectId = coinObjectIds.shift();
+            console.log(firstObjectId);
+            if (firstObjectId !== undefined) {
+              const remainingObjectIds = coinObjectIds.map(id => tx.object(id));
+              tx.mergeCoins(tx.object(firstObjectId), remainingObjectIds);
+              [coin] = tx.splitCoins(firstObjectId, [amt]);
+            } else {
+              coin = null;
+            }
+          } else {
+            coin = null;
+          }
+          if (coin !== null) {
+            tx.moveCall({
+              target: `${NEXT_PUBLIC_PACKAGEID}::bluetune::add_track`,
+              arguments: [tx.object(NEXT_PUBLIC_BLUETUNE), coin, tx.pure.string(metadata.title), tx.pure.string(metadata.artist), tx.pure.string("https://i.ibb.co/xSjS3x9N/Chat-GPT-Image-Apr-8-2025-06-49-38-AM.png"), tx.pure.string(metadata.genre), tx.pure.u64(Math.round(metadata.duration)), tx.pure.string(result.blobId), tx.pure.address(result.blobObjectId), tx.object("0x6")],
+              typeArguments: ["0x8270feb7375eee355e64fdb69c50abb6b5f9393a722883c1cf45f8e26048810a::wal::WAL"],
+            });
+            const txResult = await wallet.signAndExecuteTransaction({ transaction: tx });
+            const eventsResult = await client.queryEvents({ query: { Transaction: txResult.digest } });
+            if (eventsResult) {
+              const eventData = eventsResult.data[0]?.parsedJson as MusicAddedEvent;
+              console.log("Transaction successful:", txResult);
+              clearInterval(progressInterval)
+              setUploadProgress(100)
+
+              setTimeout(() => {
+                onUploadSuccess({
+                  ...metadata,
+                  id: eventData.id,
+                  blobId: result.blobId,
+                  blobObjectId: result.blobObjectId,
+                  coverUrl: result.coverUrl || "/placeholder.svg?height=400&width=400",
+                  audioUrl: result.audioUrl,
+                  uploadDate: new Date().toISOString(),
+                })
+              }, 1000)
+            } else {
+              throw new Error("Wallet account is undefined. Please connect your wallet.");
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Transaction error:", error);
+      }
     } catch (error) {
       console.error("Upload error:", error)
       toast({
@@ -152,9 +225,8 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
                 <Label>Audio File</Label>
                 <div
                   {...getMusicRootProps()}
-                  className={`border-2 border-dashed rounded-lg p-6 cursor-pointer transition-colors ${
-                    file ? "border-blue-500 bg-blue-500/10" : "border-gray-700 hover:border-blue-500/50"
-                  }`}
+                  className={`border-2 border-dashed rounded-lg p-6 cursor-pointer transition-colors ${file ? "border-blue-500 bg-blue-500/10" : "border-gray-700 hover:border-blue-500/50"
+                    }`}
                 >
                   <input {...getMusicInputProps()} />
                   {!file ? (
@@ -193,12 +265,11 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
                 <Label>Cover Image</Label>
                 <div
                   {...getCoverRootProps()}
-                  className={`border-2 border-dashed rounded-lg p-6 cursor-pointer transition-colors ${
-                    coverImage ? "border-purple-500 bg-purple-500/10" : "border-gray-700 hover:border-purple-500/50"
-                  }`}
+                  className={`border-2 border-dashed rounded-lg p-6 cursor-pointer transition-colors ${coverImage ? "border-purple-500 bg-purple-500/10" : "border-gray-700 hover:border-purple-500/50"
+                    }`}
                 >
                   <input {...getCoverInputProps()} />
-                  {!coverImage ? (
+                  {/* {!coverImage ? (
                     <div className="text-center">
                       <Upload className="mx-auto h-12 w-12 text-gray-400 mb-2" />
                       <p className="text-sm font-medium">Drag and drop your cover image here or click to browse</p>
@@ -231,7 +302,7 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
                         <X className="h-4 w-4" />
                       </Button>
                     </div>
-                  )}
+                  )} */}
                 </div>
               </div>
 
@@ -261,7 +332,7 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
+                {/* <div className="space-y-2">
                   <Label htmlFor="album">Album (Optional)</Label>
                   <Input
                     id="album"
@@ -269,30 +340,30 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
                     className="bg-black/30 border-gray-700 focus-visible:ring-blue-500"
                     {...register("album")}
                   />
-                </div>
+                </div> */}
 
                 <Controller
-                name="genre"
-                control={control}
-                rules={{ required: "Genre is required" }}
-                render={({ field }) => (
-                  <Select onValueChange={field.onChange} value={field.value || ""}>
-                    <SelectTrigger className="bg-black/30 border-gray-700">
-                      <SelectValue placeholder="Select genre" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="electronic">Electronic</SelectItem>
-                      <SelectItem value="hiphop">Hip Hop</SelectItem>
-                      <SelectItem value="rock">Rock</SelectItem>
-                      <SelectItem value="pop">Pop</SelectItem>
-                      <SelectItem value="jazz">Jazz</SelectItem>
-                      <SelectItem value="classical">Classical</SelectItem>
-                      <SelectItem value="ambient">Ambient</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
+                  name="genre"
+                  control={control}
+                  rules={{ required: "Genre is required" }}
+                  render={({ field }) => (
+                    <Select onValueChange={field.onChange} value={field.value || ""}>
+                      <SelectTrigger className="bg-black/30 border-gray-700">
+                        <SelectValue placeholder="Select genre" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="electronic">Electronic</SelectItem>
+                        <SelectItem value="hiphop">Hip Hop</SelectItem>
+                        <SelectItem value="rock">Rock</SelectItem>
+                        <SelectItem value="pop">Pop</SelectItem>
+                        <SelectItem value="jazz">Jazz</SelectItem>
+                        <SelectItem value="classical">Classical</SelectItem>
+                        <SelectItem value="ambient">Ambient</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
               </div>
             </TabsContent>
 
