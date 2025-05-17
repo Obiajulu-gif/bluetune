@@ -17,11 +17,12 @@ export default function RootLayout({
   return (
   <html lang="en">
       <body>
-<<<<<<< HEAD
         <Providers>
           <ThemeProvider attribute="class" defaultTheme="system">
             {children}
           </ThemeProvider>
         </Providers>
-=======
-        <Providers>{children}</Providers>
+      </body>
+    </html>
+  );
+}
