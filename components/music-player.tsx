@@ -372,10 +372,7 @@ export function MusicPlayer({
 					</div>
 				</div>
 			</div>
-		</motion.div>
-	);
-}
-			</div>
+			
 		</motion.div>
 	);
 }
