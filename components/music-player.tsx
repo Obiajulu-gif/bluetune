@@ -196,14 +196,14 @@ export function MusicPlayer({
 	};
 
 	// Safely get track properties with fallbacks
-	const trackTitle = track?.title || 'Untitled';
-	const trackArtist = track?.artist || 'Unknown Artist';
-	const trackAlbum = track?.album || 'Unknown Album';
-	const trackCoverUrl = track?.coverUrl || '/placeholder.svg';
-	const trackGenre = track?.genre || 'Unknown';
+	const trackTitle = track?.title || "Untitled";
+	const trackArtist = track?.artist || "Unknown Artist";
+	const trackAlbum = track?.album || "Unknown Album";
+	const trackCoverUrl = track?.coverUrl || "/placeholder.svg";
+	const trackGenre = track?.genre || "Unknown";
 	const trackPlays = track?.plays || 0;
-	const trackDuration = track?.duration || '0:00';
-	const trackBlobId = track?.blobId || '-';
+	const trackDuration = track?.duration || "0:00";
+	const trackBlobId = track?.blobId || "-";
 
 	return (
 		<motion.div
@@ -219,7 +219,7 @@ export function MusicPlayer({
 						<div className="flex justify-center">
 							<div className="w-48 h-48 rounded-lg overflow-hidden">
 								<img
-									src={trackCoverUrl}
+									src={trackCoverUrl || "/placeholder.svg"}
 									alt={trackTitle}
 									className="w-full h-full object-cover"
 								/>
@@ -323,7 +323,7 @@ export function MusicPlayer({
 					<div className="flex items-center justify-between">
 						<div className="flex items-center gap-3">
 							<img
-								src={trackCoverUrl}
+								src={trackCoverUrl || "/placeholder.svg"}
 								alt={trackTitle}
 								className="h-12 w-12 rounded"
 							/>
@@ -389,7 +389,6 @@ export function MusicPlayer({
 					</div>
 				</div>
 			</div>
-			
 		</motion.div>
 	);
 }
