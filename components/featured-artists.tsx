@@ -35,7 +35,7 @@ export function FeaturedArtists() {
 		},
 		{
 			name: "DeFi Sounds",
-			image: images.featuredArtists[0].url, // Reusing first image for fourth artist
+			image: images.featuredArtists[3].url, 
 			genre: "Ambient",
 			followers: "15.7K",
 		},
