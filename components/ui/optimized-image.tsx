@@ -22,7 +22,7 @@ export function OptimizedImage({
 	...props
 }: OptimizedImageProps) {
 	// Handle base64 images differently
-	if (src?.startsWith('data:image')) {
+	if (src?.startsWith("data:image")) {
 		return (
 			<img
 				src={src}

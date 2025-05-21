@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
 	try {
 		const imageRes = await fetch(url);
 		const arrayBuffer = await imageRes.arrayBuffer();
-		
+
 		return new NextResponse(arrayBuffer, {
 			headers: {
 				"Content-Type": imageRes.headers.get("Content-Type") || "image/jpeg",

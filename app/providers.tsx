@@ -16,16 +16,10 @@ const customStyle = `
 const SupportedChains: Chain[] = [SuiTestnetChain];
 
 export default function Providers({ children }: { children: React.ReactNode }) {
-  return (
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="dark"
-      enableSystem={false}
-    >
-      <style dangerouslySetInnerHTML={{ __html: customStyle }} />
-      <WalletProvider chains={SupportedChains}>
-        {children}
-      </WalletProvider>
-    </ThemeProvider>
-  );
+	return (
+		<ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+			<style dangerouslySetInnerHTML={{ __html: customStyle }} />
+			<WalletProvider chains={SupportedChains}>{children}</WalletProvider>
+		</ThemeProvider>
+	);
 }

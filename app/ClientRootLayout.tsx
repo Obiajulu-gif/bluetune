@@ -14,13 +14,15 @@ const customStyle = `
 
 const SupportedChains: Chain[] = [SuiTestnetChain];
 
-export default function ClientRootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <>
-      <style dangerouslySetInnerHTML={{ __html: customStyle }} />
-      <WalletProvider chains={SupportedChains}>
-        {children}
-      </WalletProvider>
-    </>
-  );
+export default function ClientRootLayout({
+	children,
+}: {
+	children: React.ReactNode;
+}) {
+	return (
+		<>
+			<style dangerouslySetInnerHTML={{ __html: customStyle }} />
+			<WalletProvider chains={SupportedChains}>{children}</WalletProvider>
+		</>
+	);
 }
