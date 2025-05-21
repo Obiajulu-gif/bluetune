@@ -1,6 +1,7 @@
 // app/layout.tsx
 import React from "react";
 import "./globals.css";
+import "./wallet-kit-overrides.css";
 import Providers from "./providers";
 import { ThemeProvider } from "next-themes";
 export const metadata = {

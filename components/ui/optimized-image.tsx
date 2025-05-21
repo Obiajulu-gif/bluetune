@@ -21,7 +21,21 @@ export function OptimizedImage({
 	priority = false,
 	...props
 }: OptimizedImageProps) {
-	// Use Next.js's built-in image optimization instead of custom API
+	// Handle base64 images differently
+	if (src?.startsWith('data:image')) {
+		return (
+			<img
+				src={src}
+				alt={alt}
+				width={width}
+				height={height || width}
+				className={cn("object-cover w-full h-full", className)}
+				{...props}
+			/>
+		);
+	}
+
+	// Use Next.js's built-in image optimization for other images
 	return (
 		<Image
 			src={src}

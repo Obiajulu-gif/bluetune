@@ -5,12 +5,22 @@ import React from "react";
 import { WalletProvider, Chain, SuiTestnetChain } from "@suiet/wallet-kit";
 import "@suiet/wallet-kit/style.css";
 
+// Define custom styles to hide the chain display
+const customStyle = `
+  .wallet-kit-info .chain-info {
+    display: none !important;
+  }
+`;
+
 const SupportedChains: Chain[] = [SuiTestnetChain];
 
 export default function ClientRootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <WalletProvider chains={SupportedChains}>
-      {children}
-    </WalletProvider>
+    <>
+      <style dangerouslySetInnerHTML={{ __html: customStyle }} />
+      <WalletProvider chains={SupportedChains}>
+        {children}
+      </WalletProvider>
+    </>
   );
 }
