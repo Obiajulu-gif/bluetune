@@ -59,7 +59,9 @@ export function TrendingTracks() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const audioRef = useRef<HTMLAudioElement | null>(null);  useEffect(() => {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
     const fetchTracks = async () => {
       setLoading(true);
       try {
@@ -89,8 +91,11 @@ export function TrendingTracks() {
       }
     };
 
-    fetchTracks();
-  }, []);  const handlePlayPause = (track: Track) => {
+    // Only run on client side to prevent SSR issues
+    if (typeof window !== 'undefined') {
+      fetchTracks();
+    }
+  }, []);const handlePlayPause = (track: Track) => {
     if (!audioRef.current) return;
 
     if (currentTrack?.id === track.id) {

@@ -27,7 +27,9 @@ const nextConfig = {
 				hostname: "**",
 			},
 		],
+		unoptimized: true,
 	},
+	reactStrictMode: false, // Disable strict mode to avoid double-rendering during build
 	experimental: {
 		webpackBuildWorker: true,
 		parallelServerBuildTraces: true,

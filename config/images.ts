@@ -17,6 +17,10 @@ export const images = {
 			url: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=800",
 			alt: "DJ performing at event",
 		},
+		{
+			url: "https://images.unsplash.com/photo-1501612780327-45045538702b?w=800",
+			alt: "Electronic music artist",
+		},
 	],
 	howItWorks: [
 		{

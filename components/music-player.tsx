@@ -85,12 +85,17 @@ export function MusicPlayer({
 
 		// Simulate loading a track
 		if (track?.duration) {
-			const durationParts = track.duration.split(":");
-			if (durationParts.length === 2) {
-				setDuration(
-					Number.parseInt(durationParts[0]) * 60 +
-						Number.parseInt(durationParts[1])
-				);
+			try {
+				const durationParts = track.duration.split(":");
+				if (durationParts.length === 2) {
+					setDuration(
+						Number.parseInt(durationParts[0]) * 60 +
+							Number.parseInt(durationParts[1])
+					);
+				}
+			} catch (error) {
+				console.error("Failed to parse duration:", error);
+				setDuration(0);
 			}
 		}
 

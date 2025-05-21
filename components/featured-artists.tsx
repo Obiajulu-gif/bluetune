@@ -14,28 +14,40 @@ type Artist = {
 };
 
 export function FeaturedArtists() {
+	// Default image for fallback
+	const defaultImage = "/placeholder.svg";
+	
+	// Make sure we have a valid image URL for each artist
+	const getImageUrl = (index: number) => {
+		try {
+			return images.featuredArtists[index]?.url || defaultImage;
+		} catch {
+			return defaultImage;
+		}
+	};
+
 	const artists: Artist[] = [
 		{
 			name: "Crypto Beats",
-			image: images.featuredArtists[0].url,
+			image: getImageUrl(0),
 			genre: "Electronic",
 			followers: "24.5K",
 		},
 		{
 			name: "Web3 Collective",
-			image: images.featuredArtists[1].url,
+			image: getImageUrl(1),
 			genre: "Hip Hop",
 			followers: "18.2K",
 		},
 		{
 			name: "Token Tunes",
-			image: images.featuredArtists[2].url,
+			image: getImageUrl(2),
 			genre: "Pop",
 			followers: "32.1K",
 		},
 		{
 			name: "DeFi Sounds",
-			image: images.featuredArtists[3].url,
+			image: getImageUrl(3),
 			genre: "Ambient",
 			followers: "15.7K",
 		},

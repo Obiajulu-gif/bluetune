@@ -3,22 +3,29 @@ import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { HeroSection } from "@/components/hero-section";
 import { HowItWorks } from "@/components/how-it-works";
-import { TrendingTracks } from "@/components/trending-tracks";
+import { TrendingTracksFallback } from "@/components/trending-tracks-fallback";
 import { FeatureHighlights } from "@/components/feature-highlights";
 import { Testimonials } from "@/components/testimonials";
 import { FAQSection } from "@/components/faq-section";
 import { CTASection } from "@/components/cta-section";
+import { ClientOnly } from "@/components/client-only";
 
+// Using static, server-friendly components to avoid client API calls during build
 export default function Home() {
 	return (
 		<main className="min-h-screen bg-gradient-to-b from-black via-blue-950 to-black text-white">
 			<Header />
 			<HeroSection />
 			<FeatureHighlights />
-			<TrendingTracks />
+			{/* Use the static fallback version for SSG */}
+			<TrendingTracksFallback />
 			<HowItWorks />
-			<Testimonials />
-			<FeaturedArtists />
+			<ClientOnly>
+				<Testimonials />
+			</ClientOnly>
+			<ClientOnly>
+				<FeaturedArtists />
+			</ClientOnly>
 			<FAQSection />
 			<CTASection />
 			<Footer />
