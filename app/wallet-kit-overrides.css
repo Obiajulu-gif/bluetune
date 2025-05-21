@@ -1,14 +1,14 @@
 .wallet-kit-button {
-  background: linear-gradient(to right, #3b82f6, #8b5cf6) !important;
-  border: none !important;
+    background: linear-gradient(to right, #3b82f6, #8b5cf6) !important;
+    border: none !important;
 }
 
 .wallet-kit-info .chain-info {
-  display: none !important;
+    display: none !important;
 }
 
 .wallet-kit-info .wallet-info {
-  padding: 6px 12px !important;
-  background: linear-gradient(to right, #3b82f6, #8b5cf6) !important;
-  border: none !important;
+    padding: 6px 12px !important;
+    background: linear-gradient(to right, #3b82f6, #8b5cf6) !important;
+    border: none !important;
 }
