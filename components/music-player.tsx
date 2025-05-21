@@ -84,10 +84,15 @@ export function MusicPlayer({
 		}
 
 		// Simulate loading a track
-		setDuration(
-			Number.parseInt(track.duration.split(":")[0]) * 60 +
-				Number.parseInt(track.duration.split(":")[1])
-		);
+		if (track?.duration) {
+			const durationParts = track.duration.split(":");
+			if (durationParts.length === 2) {
+				setDuration(
+					Number.parseInt(durationParts[0]) * 60 +
+						Number.parseInt(durationParts[1])
+				);
+			}
+		}
 
 		return () => {
 			if (audioRef.current) {
@@ -190,6 +195,16 @@ export function MusicPlayer({
 		return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 	};
 
+	// Safely get track properties with fallbacks
+	const trackTitle = track?.title || 'Untitled';
+	const trackArtist = track?.artist || 'Unknown Artist';
+	const trackAlbum = track?.album || 'Unknown Album';
+	const trackCoverUrl = track?.coverUrl || '/placeholder.svg';
+	const trackGenre = track?.genre || 'Unknown';
+	const trackPlays = track?.plays || 0;
+	const trackDuration = track?.duration || '0:00';
+	const trackBlobId = track?.blobId || '-';
+
 	return (
 		<motion.div
 			initial={{ y: 100, opacity: 0 }}
@@ -204,25 +219,25 @@ export function MusicPlayer({
 						<div className="flex justify-center">
 							<div className="w-48 h-48 rounded-lg overflow-hidden">
 								<img
-									src={track.coverUrl || "/placeholder.svg"}
-									alt={track.title}
+									src={trackCoverUrl}
+									alt={trackTitle}
 									className="w-full h-full object-cover"
 								/>
 							</div>
 						</div>
 
 						<div className="flex flex-col justify-center">
-							<h3 className="text-2xl font-bold mb-1">{track.title}</h3>
+							<h3 className="text-2xl font-bold mb-1">{trackTitle}</h3>
 							<Link
-								href={`/artist/${track.artist
+								href={`/artist/${trackArtist
 									.replace(/\s+/g, "-")
 									.toLowerCase()}`}
 							>
 								<p className="text-gray-400 hover:text-blue-400 transition-colors">
-									{track.artist}
+									{trackArtist}
 								</p>
 							</Link>
-							<p className="text-gray-500 text-sm mt-2">Album: {track.album}</p>
+							<p className="text-gray-500 text-sm mt-2">Album: {trackAlbum}</p>
 							<div className="mt-4 flex gap-3">
 								<Button
 									variant="outline"
@@ -261,16 +276,16 @@ export function MusicPlayer({
 								<h4 className="font-medium mb-2">Track Information</h4>
 								<div className="grid grid-cols-2 gap-2 text-sm">
 									<div className="text-gray-400">Genre:</div>
-									<div className="capitalize">{track.genre}</div>
+									<div className="capitalize">{trackGenre}</div>
 									<div className="text-gray-400">Plays:</div>
-									<div>{track.plays.toLocaleString()}</div>
+									<div>{trackPlays.toLocaleString()}</div>
 									<div className="text-gray-400">Duration:</div>
-									<div>{track.duration}</div>
+									<div>{trackDuration}</div>
 								</div>
 								<div className="mt-4">
 									<h5 className="text-xs text-gray-400 mb-1">Blob ID:</h5>
 									<div className="bg-black/30 rounded p-2 font-mono text-xs break-all">
-										{track.blobId}
+										{trackBlobId}
 									</div>
 								</div>
 							</div>
@@ -308,13 +323,13 @@ export function MusicPlayer({
 					<div className="flex items-center justify-between">
 						<div className="flex items-center gap-3">
 							<img
-								src={track.coverUrl || "/placeholder.svg"}
-								alt={track.title}
+								src={trackCoverUrl}
+								alt={trackTitle}
 								className="h-12 w-12 rounded"
 							/>
 							<div>
-								<h4 className="font-medium">{track.title}</h4>
-								<p className="text-sm text-gray-400">{track.artist}</p>
+								<h4 className="font-medium">{trackTitle}</h4>
+								<p className="text-sm text-gray-400">{trackArtist}</p>
 							</div>
 						</div>
 
@@ -323,6 +338,7 @@ export function MusicPlayer({
 								variant="ghost"
 								size="icon"
 								className="text-gray-400 hover:text-white"
+								onClick={onPrevious}
 							>
 								<SkipBack className="h-5 w-5" />
 							</Button>
@@ -342,6 +358,7 @@ export function MusicPlayer({
 								variant="ghost"
 								size="icon"
 								className="text-gray-400 hover:text-white"
+								onClick={onNext}
 							>
 								<SkipForward className="h-5 w-5" />
 							</Button>
