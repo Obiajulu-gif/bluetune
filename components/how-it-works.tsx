@@ -2,29 +2,29 @@
 
 import { Card, CardContent } from "@/components/ui/card"
 import { motion } from "framer-motion"
-import { Upload, Wallet, Play, Coins } from "lucide-react"
+import { Upload, Share2, DollarSign } from "lucide-react"
+import { OptimizedImage } from "./ui/optimized-image"
+import { images } from "@/config/images"
 
 export function HowItWorks() {
   const steps = [
     {
-      icon: <Wallet className="h-8 w-8 text-blue-400" />,
-      title: "Connect Wallet",
-      description: "Connect your Sui wallet to access the Bluetune platform.",
+      icon: <Upload className="h-8 w-8 text-blue-400" />,
+      title: "Upload",
+      description: "Upload your music as blobs on the Walrus storage system.",
+      image: images.howItWorks[0],
     },
     {
-      icon: <Upload className="h-8 w-8 text-purple-400" />,
-      title: "Upload Music",
-      description: "Artists can upload their music as blobs on the Walrus storage system.",
+      icon: <Share2 className="h-8 w-8 text-purple-400" />,
+      title: "Share",
+      description: "Share your music with the community and build your fanbase.",
+      image: images.howItWorks[1],
     },
     {
-      icon: <Play className="h-8 w-8 text-blue-400" />,
-      title: "Stream Tracks",
-      description: "Listen to high-quality music streamed directly from decentralized storage.",
-    },
-    {
-      icon: <Coins className="h-8 w-8 text-purple-400" />,
-      title: "Support Artists",
-      description: "Artists receive direct payments in WAL/SUI tokens for every stream.",
+      icon: <DollarSign className="h-8 w-8 text-blue-400" />,
+      title: "Earn",
+      description: "Receive direct payments in tokens for every stream.",
+      image: images.howItWorks[2],
     },
   ]
 
@@ -68,32 +68,28 @@ export function HowItWorks() {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+          className="grid grid-cols-1 md:grid-cols-3 gap-8"
         >
           {steps.map((step, index) => (
             <motion.div key={index} variants={item}>
-              <Card className="bg-black/40 backdrop-blur-sm border-blue-900/50 hover:border-blue-500/50 transition-all duration-300 h-full">
-                <CardContent className="p-6 flex flex-col items-center text-center">
-                  <div className="mb-4 p-3 rounded-full bg-blue-900/30">{step.icon}</div>
-                  <h3 className="text-xl font-bold mb-2">{step.title}</h3>
-                  <p className="text-gray-400">{step.description}</p>
-                  <div className="mt-4 flex justify-center">
-                    {index < steps.length - 1 && (
-                      <div className="hidden lg:flex items-center justify-center">
-                        <motion.div
-                          animate={{
-                            x: [0, 10, 0],
-                          }}
-                          transition={{
-                            repeat: Number.POSITIVE_INFINITY,
-                            duration: 1.5,
-                          }}
-                          className="text-blue-500 text-2xl"
-                        >
-                          →
-                        </motion.div>
-                      </div>
-                    )}
+              <Card className="bg-black/40 backdrop-blur-sm border-blue-900/50 hover:border-blue-500/50 transition-all duration-300 h-full overflow-hidden">
+                <CardContent className="p-0">
+                  <div className="relative aspect-video">
+                    <OptimizedImage
+                      src={step.image.url}
+                      alt={step.image.alt}
+                      width={600}
+                      height={400}
+                      className="object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                  </div>
+                  <div className="p-6 text-center">
+                    <div className="mb-4 p-3 rounded-full bg-blue-900/30 inline-block">
+                      {step.icon}
+                    </div>
+                    <h3 className="text-xl font-bold mb-2">{step.title}</h3>
+                    <p className="text-gray-400">{step.description}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -102,6 +98,6 @@ export function HowItWorks() {
         </motion.div>
       </div>
     </section>
-  )
+  );
 }
 

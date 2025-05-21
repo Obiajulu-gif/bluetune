@@ -4,28 +4,29 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { motion } from "framer-motion";
 import { Quote } from "lucide-react";
+import { images } from "@/config/images";
 
 const testimonials = [
 	{
 		quote:
 			"Bluetune has completely changed how I release and monetize my music. The direct payments from fans make a huge difference.",
-		author: "Alex Rivera",
-		role: "Electronic Music Producer",
-		avatar: "/placeholder.svg?height=60&width=60",
+		author: "Alex Johnson",
+		role: "Music Producer",
+		avatar: images.testimonials[0].url,
 	},
 	{
 		quote:
 			"The audio quality is incredible, and knowing artists get paid fairly makes the experience even better.",
-		author: "Mia Johnson",
-		role: "Music Enthusiast",
-		avatar: "/placeholder.svg?height=60&width=60",
+		author: "Sarah Chen",
+		role: "Singer/Songwriter",
+		avatar: images.testimonials[1].url,
 	},
 	{
 		quote:
 			"As an independent artist, Bluetune gives me full control over my music while reaching a global audience.",
-		author: "David Chen",
-		role: "Indie Musician",
-		avatar: "/placeholder.svg?height=60&width=60",
+		author: "Michael Rodriguez",
+		role: "DJ",
+		avatar: images.testimonials[2].url,
 	},
 ];
 
@@ -88,9 +89,14 @@ export function Testimonials() {
 											<AvatarImage
 												src={testimonial.avatar}
 												alt={testimonial.author}
+												width={48}
+												height={48}
 											/>
 											<AvatarFallback>
-												{testimonial.author.charAt(0)}
+												{testimonial.author
+													.split(" ")
+													.map((n) => n[0])
+													.join("")}
 											</AvatarFallback>
 										</Avatar>
 										<div className="ml-4">
