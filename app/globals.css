@@ -83,6 +83,33 @@
   }
 }
 
+/* Dark mode specific styles */
+.dark {
+  color-scheme: dark;
+}
+
+html {
+  color-scheme: dark;
+}
+
+/* Force text to be light in dark mode */
+.dark body,
+.dark h1,
+.dark h2,
+.dark h3,
+.dark h4,
+.dark h5,
+.dark h6,
+.dark p,
+.dark span {
+  color: #fff !important;
+}
+
+.dark .text-gray-400,
+.dark .text-gray-500 {
+  color: #9ca3af !important;
+}
+
 /* Custom fonts */
 :root {
   --font-sans: var(--font-inter);
