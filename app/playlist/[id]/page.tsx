@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { use, useEffect, useState } from "react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { MusicPlayer } from "@/components/music-player"
@@ -11,15 +11,39 @@ import { motion } from "framer-motion"
 import Link from "next/link"
 import { useToast } from "@/hooks/use-toast"
 
-export default function PlaylistPage({ params }: { params: { id: string } }) {
+export default function PlaylistPage({ params }: { params: Promise<{ id: string }> }) {
   const { toast } = useToast()
+  const resolvedParams = use(params)
   const [currentTrack, setCurrentTrack] = useState<any>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [isLiked, setIsLiked] = useState(false)
+  const [playlistDetails, setPlaylistDetails] = useState<any>(null)
+	const [loading, setLoading] = useState<boolean>(true);
+
+
+  useEffect(() => {
+      const fetchPlaylists = async () => {
+        setLoading(true)
+        try {
+          const response = await fetch(`https://bluetune-backend.onrender.com/bluetune/playlists/${resolvedParams.id}`);
+          const fetchedPlaylists = await response.json();
+          console.log(fetchedPlaylists)
+          if (fetchedPlaylists) {
+            setPlaylistDetails(fetchedPlaylists)
+          }
+        } catch (error) {
+          console.error("Failed to fetch tracks:", error);
+        } finally {
+          setLoading(false)
+        }
+      }
+  
+      fetchPlaylists()
+    }, [resolvedParams.id]);
 
   // Mock playlist data
   const playlist = {
-    id: params.id,
+    id: resolvedParams.id,
     title: "Chill Web3 Vibes",
     description: "The perfect soundtrack for building the decentralized future.",
     coverUrl: "/placeholder.svg?height=400&width=400",
@@ -106,7 +130,7 @@ export default function PlaylistPage({ params }: { params: { id: string } }) {
   }
 
   const handleShare = () => {
-    navigator.clipboard.writeText(`${window.location.origin}/playlist/${params.id}`)
+    navigator.clipboard.writeText(`${window.location.origin}/playlist/${resolvedParams.id}`)
     toast({
       title: "Link copied",
       description: "Playlist link copied to clipboard",
@@ -128,7 +152,7 @@ export default function PlaylistPage({ params }: { params: { id: string } }) {
               <div className="rounded-lg overflow-hidden mb-6">
                 <img
                   src={playlist.coverUrl || "/placeholder.svg"}
-                  alt={playlist.title}
+                  alt={playlist.title || "Playlist Cover"}
                   className="w-full aspect-square object-cover"
                 />
               </div>
@@ -189,8 +213,8 @@ export default function PlaylistPage({ params }: { params: { id: string } }) {
             className="md:col-span-2"
           >
             <div className="mb-6">
-              <h1 className="text-3xl md:text-4xl font-bold font-space-grotesk mb-2">{playlist.title}</h1>
-              <p className="text-gray-300 mb-4">{playlist.description}</p>
+              <h1 className="text-3xl md:text-4xl font-bold font-space-grotesk mb-2">{playlistDetails?.name}</h1>
+              <p className="text-gray-300 mb-4">{playlistDetails?.description}</p>
               <Link href={`/profile/${playlist.creatorId}`}>
                 <div className="flex items-center gap-2 text-gray-400 hover:text-blue-400 transition-colors">
                   <User className="h-4 w-4" />
@@ -210,7 +234,7 @@ export default function PlaylistPage({ params }: { params: { id: string } }) {
                   </div>
                 </div>
 
-                {tracks.map((track, index) => (
+                {playlistDetails?.tracks.map((track, index) => (
                   <motion.div
                     key={track.id}
                     initial={{ opacity: 0 }}
@@ -223,22 +247,22 @@ export default function PlaylistPage({ params }: { params: { id: string } }) {
                     <div className="flex-1 flex items-center gap-3">
                       <div className="h-10 w-10 rounded overflow-hidden">
                         <img
-                          src={track.coverUrl || "/placeholder.svg"}
-                          alt={track.title}
+                          src={track?.CoverUrl || "/placeholder.svg"}
+                          alt={track?.title}
                           className="h-full w-full object-cover"
                         />
                       </div>
                       <div>
-                        <div className="font-medium">{track.title}</div>
-                        <Link href={`/artist/${track.artist.replace(/\s+/g, "-").toLowerCase()}`}>
+                        <div className="font-medium">{track?.title}</div>
+                        <Link href={`/artist/${track?.artist.replace(/\s+/g, "-").toLowerCase()}`}>
                           <div className="text-sm text-gray-400 hover:text-blue-400 transition-colors">
-                            {track.artist}
+                            {track?.artist}
                           </div>
                         </Link>
                       </div>
                     </div>
-                    <div className="w-32 text-sm text-gray-400 hidden md:block truncate">{track.album}</div>
-                    <div className="w-20 text-right text-sm text-gray-400">{track.duration}</div>
+                    <div className="w-32 text-sm text-gray-400 hidden md:block truncate">{track?.album}</div>
+                    <div className="w-20 text-right text-sm text-gray-400">{track?.duration}</div>
                   </motion.div>
                 ))}
               </CardContent>

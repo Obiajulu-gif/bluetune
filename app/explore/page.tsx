@@ -10,6 +10,10 @@ import { motion } from "framer-motion";
 import { Grid, List } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Transaction } from "@mysten/sui/transactions";
+import { NEXT_PUBLIC_BLUETUNE, NEXT_PUBLIC_PACKAGEID } from "@/backend/package_ids";
+import { useWallet } from "@suiet/wallet-kit";
+import { getFullnodeUrl, SuiClient } from "@mysten/sui/client";
 
 export default function ExplorePage() {
 	const [currentTrack, setCurrentTrack] = useState<any>(null);
@@ -23,28 +27,52 @@ export default function ExplorePage() {
 	const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 	const [currentPlaylist, setCurrentPlaylist] = useState<any[]>([]);
 	const [currentIndex, setCurrentIndex] = useState(0);
+	const [playlists, setPlaylists] = useState<any[]>([]);
+	const wallet = useWallet();
+	const client = new SuiClient({ url: getFullnodeUrl("testnet") });
+
 
 	const audioRef = useRef<HTMLAudioElement>(null);
 
 	useEffect(() => {
-    const fetchTracks = async () => {
-      setLoading(true)
-      try {
-        const response = await fetch("https://bluetune-backend.onrender.com/bluetune/tracks");
-        const fetchedTracks = await response.json();
-        console.log(fetchedTracks)
-        if (fetchedTracks) {
-          setTracks(fetchedTracks)
-        }
-      } catch (error) {
-        console.error("Failed to fetch tracks:", error);
-      } finally {
-        setLoading(false)
-      }
-    }
+		const fetchTracks = async () => {
+			setLoading(true)
+			try {
+				const response = await fetch("https://bluetune-backend.onrender.com/bluetune/tracks");
+				const fetchedTracks = await response.json();
+				// console.log(fetchedTracks)
+				if (fetchedTracks) {
+					setTracks(fetchedTracks)
+				}
+			} catch (error) {
+				console.error("Failed to fetch tracks:", error);
+			} finally {
+				setLoading(false)
+			}
+		}
 
-    fetchTracks()
-  }, []);
+		fetchTracks()
+	}, []);
+
+	useEffect(() => {
+		const fetchPlaylists = async () => {
+			setLoading(true)
+			try {
+				const response = await fetch(`https://bluetune-backend.onrender.com/bluetune/playlists/creator/${wallet.address}`);
+				const fetchedPlaylists = await response.json();
+				console.log(fetchedPlaylists)
+				if (fetchedPlaylists) {
+					setPlaylists(fetchedPlaylists)
+				}
+			} catch (error) {
+				console.error("Failed to fetch tracks:", error);
+			} finally {
+				setLoading(false)
+			}
+		}
+
+		fetchPlaylists()
+	}, [wallet.address]);
 
 	const handlePlayTrack = (track: any) => {
 		if (!audioRef.current) return;
@@ -102,8 +130,22 @@ export default function ExplorePage() {
 		}
 	};
 
-	const handleAddToPlaylist = (track: any) => {
-		console.log("Add to playlist:", track.title);
+	const handleAddToPlaylist = async (track: any) => {
+		console.log("Add to playlist:", track);
+		console.log(playlists);
+		const tx = new Transaction();
+
+		tx.moveCall({
+			target: `${NEXT_PUBLIC_PACKAGEID}::bluetune::add_track_to_playlist`,
+			arguments: [tx.object(playlists[0].id), tx.pure.id(track.id)],
+		});
+
+		const txResult = await wallet.signAndExecuteTransaction({ transaction: tx });
+		const eventsResult = await client.queryEvents({ query: { Transaction: txResult.digest } });
+		if (eventsResult) {
+			const eventData = eventsResult.data[0]?.parsedJson;
+			console.log("Transaction successful:", eventData);
+		}
 	};
 
 	const handleDownload = (track: any) => {

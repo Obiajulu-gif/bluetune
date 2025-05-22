@@ -41,9 +41,10 @@ export default function PlaylistManagement() {
 	const fetchPlaylists = async () => {
 		setLoading(true);
 		try {
-			const res = await fetch("/api/playlists");
+			const res = await fetch("https://bluetune-backend.onrender.com/bluetune/playlists");
 			const data = await res.json();
-			setPlaylists(data.playlists || []);
+			console.log(data);
+			setPlaylists(data|| []);
 		} catch (err) {
 			toast({ title: "Error", description: "Failed to fetch playlists" });
 		} finally {
@@ -108,7 +109,7 @@ export default function PlaylistManagement() {
 				}
 				if (coin !== null) {
 					tx.moveCall({
-						target: `${NEXT_PUBLIC_PACKAGEID}::bluetune::add_track`,
+						target: `${NEXT_PUBLIC_PACKAGEID}::bluetune::create_playlist`,
 						arguments: [tx.object(NEXT_PUBLIC_BLUETUNE), tx.pure.string(newName), tx.pure.string(""), coin, tx.pure.bool(false), tx.object("0x6")],
 						typeArguments: ["0x8270feb7375eee355e64fdb69c50abb6b5f9393a722883c1cf45f8e26048810a::wal::WAL"],
 					});
@@ -116,7 +117,7 @@ export default function PlaylistManagement() {
 					const txResult = await wallet.signAndExecuteTransaction({ transaction: tx });
 					const eventsResult = await client.queryEvents({ query: { Transaction: txResult.digest } });
 					if (eventsResult) {
-						const eventData = eventsResult.data[0]?.parsedJsont;
+						const eventData = eventsResult.data[0]?.parsedJson;
 						console.log("Transaction successful:", eventData);
 					}
 				}
