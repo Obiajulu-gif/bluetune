@@ -273,7 +273,7 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
                     <div className="text-center">
                       <Upload className="mx-auto h-12 w-12 text-gray-400 mb-2" />
                       <p className="text-sm font-medium">Drag and drop your audio file here or click to browse</p>
-                      <p className="text-xs text-gray-500 mt-1">Supports MP3, WAV, FLAC (max 100MB)</p>
+                      <p className="text-xs text-gray-500 mt-1">Supports MP3, WAV, FLAC (max 10MB)</p>
                     </div>
                   ) : (
                     <div className="flex items-center justify-between">

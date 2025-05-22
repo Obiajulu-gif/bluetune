@@ -9,6 +9,11 @@ import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Plus, Pencil, Trash2, Music } from "lucide-react";
+import { Transaction } from "@mysten/sui/transactions";
+import { useWallet } from "@suiet/wallet-kit";
+import { SuiClient, getFullnodeUrl } from "@mysten/sui/client";
+import { NEXT_PUBLIC_BLUETUNE, NEXT_PUBLIC_PACKAGEID } from "@/backend/package_ids";
+
 
 interface Playlist {
 	id: string;
@@ -16,11 +21,22 @@ interface Playlist {
 	tracks: string[];
 }
 
+function getCoinBalance(coins: any) {
+	let balance = 0
+	for (let i = 0; i < coins.length; i++) {
+		balance += Number(coins[i].balance)
+	}
+	return balance
+}
+
 export default function PlaylistManagement() {
 	const [playlists, setPlaylists] = useState<Playlist[]>([]);
 	const [newName, setNewName] = useState("");
 	const { toast } = useToast();
 	const [loading, setLoading] = useState(false);
+	const wallet = useWallet();
+	const client = new SuiClient({ url: getFullnodeUrl("testnet") });
+
 
 	const fetchPlaylists = async () => {
 		setLoading(true);
@@ -42,15 +58,74 @@ export default function PlaylistManagement() {
 	const handleCreate = async () => {
 		if (!newName) return;
 		try {
-			const res = await fetch("/api/playlists", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ name: newName }),
-			});
-			const { playlist, paymentUrl } = await res.json();
-			window.location.href = paymentUrl; // redirect to payment
+			// const res = await fetch("/api/playlists", {
+			// 	method: "POST",
+			// 	headers: { "Content-Type": "application/json" },
+			// 	body: JSON.stringify({ name: newName }),
+			// });
+			// const { playlist, paymentUrl } = await res.json();
+			if (wallet.account) {
+				const tx = new Transaction();
+				const amt = 100000000;
+
+				const coins = await client.getCoins({
+					owner: wallet.account.address,
+					coinType: "0x8270feb7375eee355e64fdb69c50abb6b5f9393a722883c1cf45f8e26048810a::wal::WAL",
+				});
+
+				// if (coins.data.length === 0) {
+				// 	console.log("No coins found")
+				// 	throw new Error("No coins found");
+
+				// }
+
+				const coinBalance = getCoinBalance(coins.data);
+				if (coinBalance < amt) {
+					console.log("Not enough coins")
+					throw new Error("Not enough coins");
+				}
+
+				let coin: any;
+				if (coins.data.length === 1) {
+					console.log(coins.data[0].coinObjectId);
+					[coin] = tx.splitCoins(coins.data[0].coinObjectId, [amt]);
+				} else if (coins.data.length > 1) {
+					const coinObjectIds: string[] = [];
+					const objectList = coins.data;
+					coinObjectIds.push(...objectList.map(item => item.coinObjectId));
+
+					const firstObjectId = coinObjectIds.shift();
+					console.log(firstObjectId);
+					if (firstObjectId !== undefined) {
+						const remainingObjectIds = coinObjectIds.map(id => tx.object(id));
+						tx.mergeCoins(tx.object(firstObjectId), remainingObjectIds);
+						[coin] = tx.splitCoins(firstObjectId, [amt]);
+					} else {
+						coin = null;
+					}
+				} else {
+					coin = null;
+				}
+				if (coin !== null) {
+					tx.moveCall({
+						target: `${NEXT_PUBLIC_PACKAGEID}::bluetune::add_track`,
+						arguments: [tx.object(NEXT_PUBLIC_BLUETUNE), tx.pure.string(newName), tx.pure.string(""), coin, tx.pure.bool(false), tx.object("0x6")],
+						typeArguments: ["0x8270feb7375eee355e64fdb69c50abb6b5f9393a722883c1cf45f8e26048810a::wal::WAL"],
+					});
+
+					const txResult = await wallet.signAndExecuteTransaction({ transaction: tx });
+					const eventsResult = await client.queryEvents({ query: { Transaction: txResult.digest } });
+					if (eventsResult) {
+						const eventData = eventsResult.data[0]?.parsedJsont;
+						console.log("Transaction successful:", eventData);
+					}
+				}
+
+			}
+			// window.location.href = paymentUrl; // 
 		} catch (err) {
-			toast({ title: "Error", description: "Failed to create playlist" });
+			// toast({ title: "Error", description: "Failed to create playlist" });
+			console.error(err);
 		}
 	};
 

@@ -165,7 +165,7 @@ export function EnhancedTrackGrid({
 								>
 									<div className="relative flex-shrink-0 h-16 w-16 mr-4">
 										<img
-											src={track.coverUrl || "/placeholder.jpg"}
+											src={track.CoverUrl || "/placeholder.jpg"}
 											alt={track.title}
 											className="w-full h-full object-cover rounded"
 										/>
@@ -313,7 +313,7 @@ export function EnhancedTrackGrid({
 								onClick={() => onPlay(track)}
 							>
 								<img
-									src={track.coverUrl || "/placeholder.jpg"}
+									src={track.CoverUrl || "/placeholder.jpg"}
 									alt={track.title}
 									className="w-full aspect-square object-cover"
 								/>

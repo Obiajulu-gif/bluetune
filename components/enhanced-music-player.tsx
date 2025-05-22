@@ -281,7 +281,7 @@ export function EnhancedMusicPlayer({
 						<div className="flex items-center gap-3">
 							<div className="relative w-12 h-12 flex-shrink-0">
 								<img
-									src={track.coverUrl || "/placeholder.jpg"}
+									src={track.CoverUrl || "/placeholder.jpg"}
 									alt={track.title}
 									className="w-full h-full object-cover rounded-md"
 								/>
@@ -351,7 +351,7 @@ export function EnhancedMusicPlayer({
 							<div className="flex flex-col items-center justify-center">
 								<div className="relative w-64 h-64 rounded-lg overflow-hidden shadow-xl">
 									<img
-										src={track.coverUrl || "/placeholder.jpg"}
+										src={track.CoverUrl || "/placeholder.jpg"}
 										alt={track.title}
 										className="w-full h-full object-cover"
 									/>
@@ -529,7 +529,7 @@ export function EnhancedMusicPlayer({
 														<div key={idx} className="flex items-center gap-2">
 															<div className="w-8 h-8 flex-shrink-0">
 																<img
-																	src={item.coverUrl || "/placeholder.jpg"}
+																	src={item.CoverUrl || "/placeholder.jpg"}
 																	alt={item.title}
 																	className="w-full h-full object-cover rounded"
 																/>
@@ -652,7 +652,7 @@ export function EnhancedMusicPlayer({
 						<div className="flex items-center justify-between py-1">
 							<div className="flex items-center gap-3">
 								<img
-									src={track.coverUrl || "/placeholder.jpg"}
+									src={track.CoverUrl || "/placeholder.jpg"}
 									alt={track.title}
 									className="h-12 w-12 rounded object-cover"
 								/>
