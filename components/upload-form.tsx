@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useDropzone } from "react-dropzone"
 import { Button } from "@/components/ui/button"
@@ -20,16 +20,26 @@ import { SuiClient, getFullnodeUrl } from "@mysten/sui/client";
 import { useWallet } from "@suiet/wallet-kit";
 import { NEXT_PUBLIC_PACKAGEID, NEXT_PUBLIC_BLUETUNE } from "@/backend/package_ids"
 import { MusicAddedEvent } from "@/backend/get_music_new"
+import { getObject } from '@/lib/check-creator';
+
 type UploadFormProps = {
   onUploadSuccess: (trackData: any) => void
 }
 
+function getCoinBalance(coins: any) {
+  let balance = 0
+  for (let i = 0; i < coins.length; i++) {
+    balance += Number(coins[i].balance)
+  }
+  return balance
+}
 
 export function UploadForm({ onUploadSuccess }: UploadFormProps) {
   const { toast } = useToast()
   const [file, setFile] = useState<File | null>(null)
   const [coverImage, setCoverImage] = useState<File | null>(null)
   const [uploadProgress, setUploadProgress] = useState(0)
+  const [creator, setCreator] = useState("")
   const [isUploading, setIsUploading] = useState(false)
   const [isPermanent, setIsPermanent] = useState(true)
   const [estimatedCost, setEstimatedCost] = useState("0.05")
@@ -38,6 +48,21 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
 
   const wallet = useWallet();
   const client = new SuiClient({ url: getFullnodeUrl("testnet") });
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        if (!wallet.address) throw new Error("Wallet address is undefined");
+        const creator = await getObject(wallet.address)
+        setCreator(creator)
+      } catch (err) {
+        console.error('Error fetching creator data', err);
+      } finally {
+      }
+    }
+
+    fetchData();
+  }, [wallet.address]);
   const {
     register,
     handleSubmit,
@@ -125,19 +150,34 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
         duration: audioDuration,
       }
 
-      const result = await uploadToWalrus(file, coverImage, metadata);
-      if (!result) {
-        throw new Error("Failed to upload to Walrus");
-      }
       try {
         if (wallet.account) {
           const tx = new Transaction();
-          console.log(wallet.account.address);
-          const amt = 500000000;
+          const amt = 1000000000;
+
           const coins = await client.getCoins({
             owner: wallet.account.address,
             coinType: "0x8270feb7375eee355e64fdb69c50abb6b5f9393a722883c1cf45f8e26048810a::wal::WAL",
           });
+
+          if (coins.data.length === 0) {
+            console.log("No coins found")
+            throw new Error("No coins found");
+
+          }
+
+          const coinBalance = getCoinBalance(coins.data);
+          if (coinBalance < amt) {
+            console.log("Not enough coins")
+            throw new Error("Not enough coins");
+          }
+
+          console.log(`Coin balance: ${coinBalance}`);
+          const result =
+            await uploadToWalrus(file, coverImage, metadata);
+          if (!result) {
+            throw new Error("Failed to upload to Walrus");
+          }
           let coin: any;
           if (coins.data.length === 1) {
             console.log(coins.data[0].coinObjectId);
@@ -162,8 +202,8 @@ export function UploadForm({ onUploadSuccess }: UploadFormProps) {
           if (coin !== null) {
             tx.moveCall({
               target: `${NEXT_PUBLIC_PACKAGEID}::bluetune::add_track`,
-              arguments: [tx.object(NEXT_PUBLIC_BLUETUNE), coin, tx.pure.string(metadata.title), tx.pure.string(metadata.artist), tx.pure.string("https://i.ibb.co/xSjS3x9N/Chat-GPT-Image-Apr-8-2025-06-49-38-AM.png"), tx.pure.string(metadata.genre), tx.pure.u64(Math.round(metadata.duration)), tx.pure.string(result.blobId), tx.pure.address(result.blobObjectId), tx.object("0x6")],
-              typeArguments: ["0x8270feb7375eee355e64fdb69c50abb6b5f9393a722883c1cf45f8e26048810a::wal::WAL"],
+              arguments: [tx.object(NEXT_PUBLIC_BLUETUNE), tx.object(creator), coin, tx.pure.string(metadata.title), tx.pure.string(metadata.artist), tx.pure.string("https://i.ibb.co/xSjS3x9N/Chat-GPT-Image-Apr-8-2025-06-49-38-AM.png"), tx.pure.string(metadata.genre), tx.pure.u64(Math.round(metadata.duration)), tx.pure.string(result.blobId), tx.pure.address(result.blobObjectId), tx.object("0x6")],
+              typeArguments: ["0x8270feb7375eee355e64fdb69c50abb6b5f9393a722883c1cf45f8e26048810a::wal::WAL"],  
             });
             const txResult = await wallet.signAndExecuteTransaction({ transaction: tx });
             const eventsResult = await client.queryEvents({ query: { Transaction: txResult.digest } });

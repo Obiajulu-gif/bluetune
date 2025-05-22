@@ -7,7 +7,6 @@ import { EnhancedTrackGrid } from "@/components/enhanced-track-grid";
 import { EnhancedMusicPlayer } from "@/components/enhanced-music-player";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
-import { queryEvents } from "@/backend/get_music_new";
 import { Grid, List } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -28,22 +27,24 @@ export default function ExplorePage() {
 	const audioRef = useRef<HTMLAudioElement>(null);
 
 	useEffect(() => {
-		const fetchTracks = async () => {
-			setLoading(true);
-			try {
-				const fetchedTracks = await queryEvents(); // Fetch data from your API function
-				if (fetchedTracks) {
-					setTracks(fetchedTracks);
-				}
-			} catch (error) {
-				console.error("Failed to fetch tracks:", error);
-			} finally {
-				setLoading(false);
-			}
-		};
+    const fetchTracks = async () => {
+      setLoading(true)
+      try {
+        const response = await fetch("https://bluetune-backend.onrender.com/bluetune/tracks");
+        const fetchedTracks = await response.json();
+        console.log(fetchedTracks)
+        if (fetchedTracks) {
+          setTracks(fetchedTracks)
+        }
+      } catch (error) {
+        console.error("Failed to fetch tracks:", error);
+      } finally {
+        setLoading(false)
+      }
+    }
 
-		fetchTracks();
-	}, []);
+    fetchTracks()
+  }, []);
 
 	const handlePlayTrack = (track: any) => {
 		if (!audioRef.current) return;
@@ -60,7 +61,6 @@ export default function ExplorePage() {
 				setIsPlaying(true);
 			}
 		} else {
-			// Find the index of the track in the filtered playlist
 			const trackIndex = filteredPlaylist.findIndex((t) => t.id === track.id);
 			setCurrentIndex(trackIndex >= 0 ? trackIndex : 0);
 
@@ -104,7 +104,6 @@ export default function ExplorePage() {
 
 	const handleAddToPlaylist = (track: any) => {
 		console.log("Add to playlist:", track.title);
-		// Implement playlist functionality here
 	};
 
 	const handleDownload = (track: any) => {
@@ -249,7 +248,6 @@ export default function ExplorePage() {
 					</Tabs>
 				)}
 			</div>{" "}
-			{/* Audio Player */}
 			<audio
 				ref={audioRef}
 				onEnded={() => setIsPlaying(false)}
